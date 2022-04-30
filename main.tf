@@ -1,8 +1,22 @@
 provider "aws" {
-  region = "eu-central-1"
+  region  = "eu-central-1"
+  version = "~> 4.12.1"
 }
 resource "aws_s3_bucket" "acloud-guru-bucket" {
   bucket = "acloud-guru-bucket-scenario"
+}
+
+resource "aws_s3_bucket_acl" "acloud-guru-bucket-acl" {
+  bucket = aws_s3_bucket.acloud-guru-bucket.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_public_access_block" "acloud-guru-bucket-acl-block" {
+  bucket = aws_s3_bucket.acloud-guru-bucket.id
+  restrict_public_buckets = true
+  block_public_acls = true
+  block_public_policy = true
+  ignore_public_acls = true
 }
 
 resource "aws_s3_bucket_policy" "acloud-guru-bucket-policy" {
