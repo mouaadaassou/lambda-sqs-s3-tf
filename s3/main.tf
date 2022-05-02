@@ -51,10 +51,10 @@ resource "aws_s3_bucket_public_access_block" "acloud-guru-bucket-acl-block" {
 
 resource "aws_s3_bucket_policy" "acloud-guru-bucket-policy" {
   bucket = aws_s3_bucket.command-processor-s3-bucket.id
-  policy = data.aws_iam_policy_document.acloud-guru-bucket-enforce-ssl-policy.json
+  policy = data.aws_iam_policy_document.s3-bucket-enforce-ssl-policy.json
 }
 
-resource "aws_kms_key" "acloud-guru-kms" {
+resource "aws_kms_key" "kms-s3-config" {
   description             = "KMS key to encrypt uploaded files to S3"
   deletion_window_in_days = 10
 }
@@ -64,13 +64,13 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "acloud-guru-serve
 
   rule {
     apply_server_side_encryption_by_default {
-      kms_master_key_id = aws_kms_key.acloud-guru-kms.arn
+      kms_master_key_id = aws_kms_key.kms-s3-config.arn
       sse_algorithm     = "aws:kms"
     }
   }
 }
 
-data "aws_iam_policy_document" "acloud-guru-bucket-enforce-ssl-policy" {
+data "aws_iam_policy_document" "s3-bucket-enforce-ssl-policy" {
   version = "2012-10-17"
   statement {
     sid       = "enforcingSslOnS3Bucket"

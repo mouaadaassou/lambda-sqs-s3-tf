@@ -7,5 +7,5 @@ output "main-s3-bucket-name" {
 }
 
 output "kms-arn" {
-  value = aws_kms_key.acloud-guru-kms.arn
+  value = aws_kms_key.kms-s3-config.arn
 }
