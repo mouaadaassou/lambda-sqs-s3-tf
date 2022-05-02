@@ -17,7 +17,7 @@ resource "aws_lambda_function" "command-processor" {
   package_type     = var.lambda-package-type
   filename         = data.archive_file.command-processor.output_path
   handler          = "main.lambda_handler"
-  source_code_hash = filebase64sha256("main.py.zip")
+  source_code_hash = filebase64sha256(data.archive_file.command-processor.source_file)
 
   environment {
     variables = {
@@ -26,14 +26,14 @@ resource "aws_lambda_function" "command-processor" {
   }
 }
 
-resource "aws_iam_role_policy" "command-processor-role-policy" {
-  policy = data.aws_iam_policy_document.allow-command-processor-lambda-receive-messages.json
-  role   = aws_iam_role.command-processor-role.id
-}
-
 resource "aws_iam_role" "command-processor-role" {
   name               = "command-processor-role"
   assume_role_policy = data.aws_iam_policy_document.assume-role-policy.json
+  managed_policy_arns = [aws_iam_policy.command-processor-policy.arn]
+}
+
+resource "aws_iam_policy" "command-processor-policy" {
+  policy = data.aws_iam_policy_document.allow-command-processor-lambda-receive-messages.json
 }
 
 resource "aws_cloudwatch_log_group" "command-processor-log-group" {
