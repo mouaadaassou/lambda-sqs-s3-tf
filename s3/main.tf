@@ -1,23 +1,19 @@
-// TODO; Notes:
-// TODO; 1. check S3 lifecycle management to mitigate the Volume issue
-
 provider "aws" {
   region = "eu-central-1"
 }
-resource "aws_s3_bucket" "acloud-guru-bucket" {
-  bucket = "acloud-guru-bucket-scenario"
+resource "aws_s3_bucket" "command-processor-s3-bucket" {
+  bucket = "command-processor-s3-bucket"
 }
 
 resource "aws_s3_bucket_versioning" "acloud-guru-bucket-versioning" {
-  bucket = aws_s3_bucket.acloud-guru-bucket.id
+  bucket = aws_s3_bucket.command-processor-s3-bucket.id
   versioning_configuration {
     status = "Disabled"
   }
 }
 
-// do we need to archive files ? question to the Tech Lead
 resource "aws_s3_bucket_lifecycle_configuration" "acloud-guru-bucket-lifecycle-config" {
-  bucket = aws_s3_bucket.acloud-guru-bucket.id
+  bucket = aws_s3_bucket.command-processor-s3-bucket.id
 
   rule {
     id = "moveToArchiveStorageClass"
@@ -41,12 +37,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "acloud-guru-bucket-lifecycle-c
 }
 
 resource "aws_s3_bucket_acl" "acloud-guru-bucket-acl" {
-  bucket = aws_s3_bucket.acloud-guru-bucket.id
+  bucket = aws_s3_bucket.command-processor-s3-bucket.id
   acl    = "private"
 }
 
 resource "aws_s3_bucket_public_access_block" "acloud-guru-bucket-acl-block" {
-  bucket                  = aws_s3_bucket.acloud-guru-bucket.id
+  bucket                  = aws_s3_bucket.command-processor-s3-bucket.id
   restrict_public_buckets = true
   block_public_acls       = true
   block_public_policy     = true
@@ -54,7 +50,7 @@ resource "aws_s3_bucket_public_access_block" "acloud-guru-bucket-acl-block" {
 }
 
 resource "aws_s3_bucket_policy" "acloud-guru-bucket-policy" {
-  bucket = aws_s3_bucket.acloud-guru-bucket.id
+  bucket = aws_s3_bucket.command-processor-s3-bucket.id
   policy = data.aws_iam_policy_document.acloud-guru-bucket-enforce-ssl-policy.json
 }
 
@@ -64,7 +60,7 @@ resource "aws_kms_key" "acloud-guru-kms" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "acloud-guru-server-side-encryption-config" {
-  bucket = aws_s3_bucket.acloud-guru-bucket.bucket
+  bucket = aws_s3_bucket.command-processor-s3-bucket.bucket
 
   rule {
     apply_server_side_encryption_by_default {
@@ -85,8 +81,8 @@ data "aws_iam_policy_document" "acloud-guru-bucket-enforce-ssl-policy" {
       type        = "AWS"
     }
     resources = [
-      aws_s3_bucket.acloud-guru-bucket.arn,
-      "${aws_s3_bucket.acloud-guru-bucket.arn}/*",
+      aws_s3_bucket.command-processor-s3-bucket.arn,
+      "${aws_s3_bucket.command-processor-s3-bucket.arn}/*",
     ]
     condition {
       test     = "Bool"
